@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Text;
 
 namespace platformer
 {
@@ -11,8 +12,10 @@ namespace platformer
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Vector2 position;
         Texture2D background;
         Texture2D image;
+        Texture2D platform;
 
         public Game1()
         {
@@ -28,9 +31,9 @@ namespace platformer
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
+            position = new Vector2(graphics.GraphicsDevice.Viewport.Width / 2 - 64, graphics.GraphicsDevice.Viewport.Height / 2 - 64);
+
         }
 
         /// <summary>
@@ -44,6 +47,7 @@ namespace platformer
 
             image = Content.Load<Texture2D>("dude");
             background = Content.Load<Texture2D>("sky");
+            platform = Content.Load<Texture2D>("platform");
         }
 
         /// <summary>
@@ -62,10 +66,32 @@ namespace platformer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            KeyboardState state = Keyboard.GetState();
 
-            // TODO: Add your update logic here
+            if (state.IsKeyDown(Keys.Escape))
+            {
+                Exit();
+            }
+
+            System.Text.StringBuilder sb = new StringBuilder();
+            foreach (var key in state.GetPressedKeys())
+                sb.Append("Key: ").Append(key).Append(" pressed ");
+
+            if (sb.Length > 0)
+                System.Diagnostics.Debug.WriteLine(sb.ToString());
+            else
+                System.Diagnostics.Debug.WriteLine("No Keys pressed");
+
+            // Move our sprite based on arrow keys being pressed:
+            if (state.IsKeyDown(Keys.Right))
+                position.X += 10;
+            if (state.IsKeyDown(Keys.Left))
+                position.X -= 10;
+            if (state.IsKeyDown(Keys.Up))
+                position.Y -= 10;
+            if (state.IsKeyDown(Keys.Down))
+                position.Y += 10;
+            
 
             base.Update(gameTime);
         }
@@ -80,7 +106,8 @@ namespace platformer
 
             spriteBatch.Begin();
             spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
-            spriteBatch.Draw(image, new Vector2(400, 240), Color.White);
+            spriteBatch.Draw(image, position);
+            spriteBatch.Draw(platform, new Vector2(400, 260), Color.White);
             spriteBatch.End();
 
             // TODO: Add your drawing code here
